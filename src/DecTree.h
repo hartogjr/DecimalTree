@@ -32,27 +32,78 @@
 
 #pragma once
 
-#include <type_traits>
+#include <cstdint>
+#include <mutex>
+
+#define ISVALID(x)     (x & UINT64_C(0x01))
+#define POINTS2LEAF(x) (x & UINT64_C(0x02))
 
 namespace SdH {
 
-	template<typename T>
 	class DecTree
 	{
-		static_assert(
-			std::is_unsigned<T>::value && (
-				sizeof(T) == 32 || sizeof(T) == 64
-			), "Template instantiation should be done with unsigned int of 32 or 64 bits"
-		);
+		private:
+		/// Copy construction not allowed
+		DecTree(const DecTree * obj_i) = delete;
+
+		/// Assignment construction not allowed
+		DecTree & operator=(const DecTree & obj_i) = delete;
 
 		protected:
+		/// Base address of data
+		void *base_;
+
+		/// Mutex to prevent simultaneous modifications
+		std::mutex mux_;
+
+		/// Next free byte in allocated memory
+		uint64_t nextfree_;
+
+		/// Number of memory pages allocated
+		uint32_t pages_;
+
+		/** Reset a block of memory, possibly allocating more pages of
+		 * necessary.
+		 * @param bytes_i Number of bytes to clear
+		 * @returns Offset of block, relative to base. */
+		uint64_t extra_(const uint8_t bytes_i);
+
+		/** Create a new leaf in memory, possibly allocating more pages if
+		 * necessary.
+		 * @returns Offset of new leaf, relative to base. */
+		inline uint64_t newleaf_() { return extra_(sizeof(uint64_t)); }
+
+		/** Create a new list in memory, possibly allocating more pages if
+		 * necessary.
+		 * @returns Offset in bytes of new list, relative to base. */
+		inline uint64_t newlist_() { return extra_(sizeof(uint64_t)*11); }
 
 		public:
 		/// Constructor
-		DecTree() = default;
+		DecTree();
 
 		/// Destructor
-		~DecTree() = default;
+		~DecTree();
+
+		/** Clear the entire database. This method will cause segfaults when
+		 * reads are still being executed. */
+		void clear();
+
+		/** Lookup a destination for a given number.
+		 * @param number_i Number to lookup.
+		 * @returns Found destination, or 0 if not found.
+		 * @throws std::invalid_argument if @p number_i does not consist of
+		 * only digits in the range 0 through 9. */
+		const uint64_t operator()(const std::string & number_i) const;
+
+		/** Set a destination for a number (range).
+		 * This method creates decimal trees and allocates memory as
+		 * necessary. It also replaces possible existing entries.
+		 * @param number_i The number (range) to set.
+		 * @param destination_i The destination to set for this number (range).
+		 * @throws std::invalid_argument if @p number_i does not consist of
+		 * only digits in the range 0 through 9. */
+		void operator()(const std::string & number_i, const uint64_t destination_i);
 	};
 
 } // SdH namespace

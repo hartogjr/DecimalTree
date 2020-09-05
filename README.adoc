@@ -46,12 +46,8 @@ strings:
 
 == Concurrent access
 
-All reads are guaranteed to never block. When a modification to the tree is in
-progress, a read of that modification either returns the result before or
-after the modification, never some state in between.
-
-Modifications to the tree require exclusive write access to the tree and are
-thus serialized. Modifications don't clean up or reuse unused memory space, they simply
+All reads use a read lock. Modifications to the tree require an exclusive
+write lock to the tree and therefore have to wait for reads and other writes to finish.
+Modifications don't clean up or reuse unused memory space, they simply
 use more. There is however a consolidation method to optimize memory use after
-a large number of modifications. Even during this consolidation, reads will
-always succeed, return valid data and never block.
+a large number of modifications.

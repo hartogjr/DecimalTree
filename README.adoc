@@ -19,3 +19,39 @@ numbers and number ranges with their destination (an unsigned integer).
 
 It can probably also be used for other types of lookups, please let me know if
 you've found other use cases for it.
+
+== Functionality
+
+A destination is an unsigned integer, intended to be a database row ID or index
+in another data structure. A decimal tree stores all numbers and number ranges
+with their own destination, if specified. Destination 0 is considered the
+sentinel value and means "no destination found". For example:
+
+* Number range 314 has destination 1
+* Number range 31419 has destination 2
+* Number range 3141906 has destination 3
+
+This small database would return the following results with the given query
+strings:
+
+* `3` -> `0`
+* `314` -> `1`
+* `3141` -> `1`
+* `3144` -> `1`
+* `31419` -> `2`
+* `314198` -> `2`
+* `314190` -> `2`
+* `3141906` -> `3`
+* `314190647` -> `3`
+
+== Concurrent access
+
+All reads are guaranteed to never block. When a modification to the tree is in
+progress, a read of that modification either returns the result before or
+after the modification, never some state in between.
+
+Modifications to the tree require exclusive write access to the tree and are
+thus serialized. Modifications don't clean up or reuse unused memory space, they simply
+use more. There is however a consolidation method to optimize memory use after
+a large number of modifications. Even during this consolidation, reads will
+always succeed, return valid data and never block.

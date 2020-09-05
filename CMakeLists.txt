@@ -69,6 +69,7 @@ set (CMAKE_CXX_FLAGS_DEBUG   "${CUSTOM_DEBUG}")
 set (CMAKE_CXX_FLAGS_RELEASE "${CUSTOM_RELEASE}")
 
 # Find necessary packages
+find_package(fmt REQUIRED)
 
 # Include stuff for code coverage
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

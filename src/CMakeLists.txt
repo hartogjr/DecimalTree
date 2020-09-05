@@ -30,18 +30,14 @@
 #
 # vim:set ts=4 sw=4 noexpandtab:
 
-include_directories (
-        ${Boost_INCLUDE_DIRS}
-)
-
 add_library (dectree SHARED
-        Logger.cpp
+	DecTree.cpp
+	Logger.cpp
 )
 
 target_link_libraries (dectree
-        ${Boost_LIBRARIES}
-        ${CMAKE_THREAD_LIBS_INIT}
+	fmt::fmt
 )
 
-add_executable (dectreecli dectreecli.cpp)
-target_link_libraries (dectreecli dectree)
+#add_executable (dectreecli dectreecli.cpp)
+#target_link_libraries (dectreecli dectree)

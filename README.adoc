@@ -1,0 +1,21 @@
+// vim:set ts=4 sw=4 noet ft=asciidoc:
+// This file is in AsciiDoc format. There are plugins for Firefox and Google
+// Chrome to automatically display a rendered version of this file when you
+// open it locally in your browser (URL starts with file:///)
+= Decimal Tree
+Simon de_Hartog <simon@dehartog.name>
+:doctype: article
+
+== License information
+
+This software is licensed under the BSD-3 license. See the file named
+`LICENSE` for details.
+
+== Introduction
+
+This project is designed for use by telecom operators to quickly find the most
+specific destination of a telephone number, given a (rather large) list of
+numbers and number ranges with their destination (an unsigned integer).
+
+It can probably also be used for other types of lookups, please let me know if
+you've found other use cases for it.
